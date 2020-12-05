@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -14,7 +15,71 @@ using namespace std;
 
 // TODO: should move the implementation to ~.cpp after making the makefile that compiles ~.cpp
 
-shared_ptr<Frame> get_frame(const char MAX_FRAME, shared_ptr<Frame> frame_table[],
+void parse_command(int argc, char **argv,
+                   char &MAX_FRAME, Pager *&pager, unordered_map<char, bool> &ops,
+                   char *&inputPath, char *&randPath)
+{
+  char algo = 0;
+  int num_frames = 0; // somehow algo will be broken when using char for num_frames...
+  char options[8];
+
+  int c;
+  opterr = 0;
+  while ((c = getopt(argc, argv, "a:f:o:")) != -1)
+    switch (c)
+    {
+    case 'a':
+      sscanf(optarg, "%c", &algo);
+      break;
+    case 'f':
+      sscanf(optarg, "%d", &num_frames);
+      break;
+    case 'o':
+      sscanf(optarg, "%s", &options);
+      break;
+    case '?':
+      if (optopt == 'a' || optopt == 'f' || optopt == 'o')
+        fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+      else if (isprint(optopt))
+        fprintf(stderr, "Unknown option '-%c'.\n", optopt);
+      else
+        fprintf(stderr, "Unknown option character '\\x%x'.\n", optopt);
+      return;
+    default:
+      abort();
+    }
+  // printf("algo = %c, num_frames = %d, options = %s\n", algo, num_frames, options);
+
+  inputPath = argv[optind++];
+  randPath = argv[optind++];
+  // printf("input file path: %s\n", inputPath);
+  // printf("random file path: %s\n", randPath);
+
+  MAX_FRAME = num_frames - 1; // 0 ~ 127, maximum 128 frames
+  // cout << "max frame = " << static_cast<int>(MAX_FRAME) << endl;
+
+  switch (algo)
+  {
+  case 'f':
+    pager = new FIFO();
+    break;
+  }
+
+  for (int i = 0; i < 8; i++)
+  {
+    if (ops.count(options[i]) != 0)
+    {
+      ops[options[i]] = 1;
+    }
+  }
+  // for (auto p : ops)
+  // {
+  //   cout << p.first << ":" << p.second << ", ";
+  // }
+  return;
+}
+
+shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table,
                             deque<shared_ptr<Frame>> &freePool, const Pager *pager,
                             shared_ptr<Process> &current_process, unsigned long long &totalCycles)
 {

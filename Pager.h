@@ -10,7 +10,9 @@ using namespace std;
 class Pager
 {
 public:
-  virtual shared_ptr<Frame> select_victim_frame(const char, shared_ptr<Frame>[]) const = 0;
+  virtual shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const = 0;
+  char get_type() { return type; };
+  Pager(char c) : type(c){};
 
   /* Once a victim frame has been determined, 
   ** the victim frame must be unmapped from its user, i.e. its entry in the owning process’s page_table must be removed ("UNMAP"), 
@@ -19,6 +21,7 @@ public:
   ** if it was file mapped, written back to the file ("FOUT").
   */
 protected:
+  char type;
   // we can define data members that are for all derived class here.
 };
 
@@ -26,12 +29,17 @@ protected:
 class FIFO : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(const char, shared_ptr<Frame>[]) const override;
+  shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const override;
+  FIFO();
 
 private:
 };
 
-shared_ptr<Frame> FIFO::select_victim_frame(const char MAX_FRAME, shared_ptr<Frame> frame_table[]) const
+FIFO::FIFO()
+    : Pager('F')
+{
+}
+shared_ptr<Frame> FIFO::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
 {
   static int i = 0;
   if (i > MAX_FRAME)

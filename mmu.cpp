@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include <deque>
 #include <string>
 using namespace std;
@@ -11,34 +12,51 @@ using namespace std;
 #include "Helpers.h"
 #include "Pager.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  // TODO: take from input args
-  const string inputPath = "./testdata/in3";
-  const char MAX_FRAME = 16 - 1; // 0 ~ 127, maximum 128 frames
-  const Pager *pager = new FIFO();
-  bool O = 0, P = 1, F = 1, S = 1;
+  // for configs
+  char *inputPath = nullptr, *randPath = nullptr;
+  char MAX_FRAME = 0;
+  Pager *pager = nullptr;
+  unordered_map<char, bool> ops = {{'O', 0}, {'P', 0}, {'F', 0}, {'S', 0}, {'x', 0}, {'y', 0}, {'f', 0}, {'a', 0}};
 
+  // for simulation control
   ifstream inputfile;
-  inputfile.open(inputPath);
-  vector<shared_ptr<Process>> procs = createProcs(inputfile); // processes are numbered starting from 0
+  vector<shared_ptr<Process>> procs;
   shared_ptr<Process> current_process = nullptr;
+  vector<shared_ptr<Frame>> frame_table;
+  deque<shared_ptr<Frame>> freePool;
 
+  // for statistics
   int instCount = 0, ctxSwitches = 0, processExits = 0;
   unsigned long long totalCycles = 0;
-  string operation;
-  int target;
+
+  parse_command(argc, argv, MAX_FRAME, pager, ops, inputPath, randPath);
+  // DEBUG: print out the configs
+  // cout << "MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl
+  //      << "PAGER_TYPE=" << pager->get_type() << endl
+  //      << "INPUT_PATH=" << inputPath << ", RAND_PATH=" << randPath << endl
+  //      << "OPTIONS: ";
+  // for (auto p : ops)
+  // {
+  //   cout << p.first << ":" << p.second << ", ";
+  // }
+
+  // create processes from inputfile
+  inputfile.open(inputPath);
+  procs = createProcs(inputfile); // processes are numbered starting from 0
 
   // initialize frame_table and freePool
-  shared_ptr<Frame> frame_table[MAX_FRAME + 1];
-  deque<shared_ptr<Frame>> freePool;
   for (char i = 0; i <= MAX_FRAME; i++)
   {
     shared_ptr<Frame> f(new Frame(i));
-    frame_table[i] = f;
+    frame_table.emplace_back(f);
     freePool.emplace_back(f);
   }
 
+  // simulate executing the instructions
+  string operation;
+  int target;
   while (get_next_instruction(inputfile, operation, target))
   {
     cout << instCount++ << ": ==> " << operation << " " << target << endl;
@@ -168,15 +186,15 @@ int main()
   inputfile.close();
 
   // Debug only: print out processes
-  for (size_t i = 0; i < procs.size(); i++)
-  {
-    cout << "#### process " << i << endl
-         << "#" << endl
-         << procs[i]->VMAs->size() << endl
-         << procs[i];
-  }
+  // for (size_t i = 0; i < procs.size(); i++)
+  // {
+  //   cout << "#### process " << i << endl
+  //        << "#" << endl
+  //        << procs[i]->VMAs->size() << endl
+  //        << procs[i];
+  // }
 
-  if (P)
+  if (ops['P'])
   { // Print page table of each processes
     for (size_t i = 0; i < procs.size(); i++)
     {
@@ -200,18 +218,25 @@ int main()
     }
   }
 
-  if (F)
+  if (ops['F'])
   { // Print frame table
     cout << "FT:";
     for (int i = 0; i <= MAX_FRAME; i++)
     {
       shared_ptr<Frame> frame = frame_table[i];
-      cout << " " << frame->proc->id << ":" << static_cast<int>(frame->vPageId);
+      if (frame->proc == nullptr)
+      {
+        cout << " *";
+      }
+      else
+      {
+        cout << " " << frame->proc->id << ":" << static_cast<int>(frame->vPageId);
+      }
     }
     cout << endl;
   }
 
-  if (S)
+  if (ops['S'])
   { // Print the summary statistics
     // Per process output:
     for (auto proc : procs)
