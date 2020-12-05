@@ -163,6 +163,7 @@ int main(int argc, char **argv)
     // i.e. set the REFERENCED and MODIFIED bits based on the operation
     if (operation == "w")
     {
+      pte.referenced = 1;
       if (pte.write_protect)
       {
         // If the instruction is a write operation and the PTE's write protect bit is set (inherited from the VMA it belongs to)
@@ -170,12 +171,10 @@ int main(int argc, char **argv)
         cout << " SEGPROT" << endl;
         current_process->pstats.segprot++;
         totalCycles += 300;
-        pte.referenced = 1;
       }
       else
       {
         pte.modified = 1;
-        pte.referenced = 1; //TODO: modified => referenced?
       }
     }
     else if (operation == "r")
