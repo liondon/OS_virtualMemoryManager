@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   int instCount = 0, ctxSwitches = 0, processExits = 0;
   unsigned long long totalCycles = 0;
 
-  parse_command(argc, argv, MAX_FRAME, pager, ops, inputPath, randPath);
+  set_config(argc, argv, MAX_FRAME, pager, ops, inputPath, randPath);
   // DEBUG: print out the configs
   // cout << "MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl
   //      << "PAGER_TYPE=" << pager->get_type() << endl

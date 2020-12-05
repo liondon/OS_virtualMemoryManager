@@ -33,6 +33,19 @@ typedef struct pte_t
   // you have to layout your datastructure exactly how the hardware specifies it.
   // So padding is often the case.
 
+  // NOTE: use `union` to simplify the initialization.
+  // ref: https://stackoverflow.com/questions/2310483/purpose-of-unions-in-c-and-c
+  /*
+      union {
+          unsigned int value;  // 32-bit value
+          struct {
+                  unsigned int haha : 1;
+                  unsigned int hahb: 6;
+          } bits
+      } pte_t;
+
+      one_pte_entry.value = 0;  // OR pte_t one_pte_entry = { 0 };
+  */
   pte_t() : valid(0), referenced(0), modified(0), write_protect(0), pageout(0), frame(0),
             file_mapped(0), initialized(0), accessible(0)
   {

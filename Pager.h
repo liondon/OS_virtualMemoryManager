@@ -39,9 +39,10 @@ FIFO::FIFO()
     : Pager('F')
 {
 }
+
 shared_ptr<Frame> FIFO::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
 {
-  static int i = 0;
+  static int i = 0; // the "hand"
   if (i > MAX_FRAME)
   {
     // cout << i << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;

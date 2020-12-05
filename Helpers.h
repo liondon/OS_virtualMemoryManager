@@ -1,3 +1,6 @@
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include <unistd.h>
 #include <memory>
 #include <iostream>
@@ -14,10 +17,9 @@ using namespace std;
 #include "Pager.h"
 
 // TODO: should move the implementation to ~.cpp after making the makefile that compiles ~.cpp
-
-void parse_command(int argc, char **argv,
-                   char &MAX_FRAME, Pager *&pager, unordered_map<char, bool> &ops,
-                   char *&inputPath, char *&randPath)
+void set_config(int argc, char **argv,
+                char &MAX_FRAME, Pager *&pager, unordered_map<char, bool> &ops,
+                char *&inputPath, char *&randPath)
 {
   char algo = 0;
   int num_frames = 0; // somehow algo will be broken when using char for num_frames...
@@ -226,3 +228,5 @@ vector<shared_ptr<Process>> createProcs(ifstream &inputfile)
 
   return procs;
 }
+
+#endif
