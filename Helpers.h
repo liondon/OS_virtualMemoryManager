@@ -68,6 +68,9 @@ void set_config(int argc, char **argv,
   case 'r':
     pager = new RAND(randPath);
     break;
+  case 'c':
+    pager = new CLCK();
+    break;
   }
 
   for (int i = 0; i < 8; i++)

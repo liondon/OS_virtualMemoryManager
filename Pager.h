@@ -25,6 +25,47 @@ protected:
   // we can define data members that are for all derived class here.
 };
 
+///////////////////// C L O C K ///////////////////////////
+class CLCK : public Pager
+{
+public:
+  shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const override;
+  CLCK();
+
+private:
+};
+
+CLCK::CLCK()
+    : Pager('C')
+{
+}
+
+shared_ptr<Frame> CLCK::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
+{
+  static int i = 0; // the "hand"
+  while (true)
+  {
+    if (i > MAX_FRAME)
+    {
+      // cout << i << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
+      i = 0;
+    }
+    shared_ptr<Process> proc = frame_table[i]->proc;
+    char vPageId = frame_table[i]->vPageId;
+    pte_t &pte = proc->page_table[vPageId];
+    if (pte.referenced)
+    {
+      pte.referenced = 0;
+      i++;
+    }
+    else
+    {
+      return frame_table[i++];
+    }
+  }
+}
+/////////////////////////////////////////////////////////
+
 ///////////////////// R A N D O M ///////////////////////////
 // TODO: how to put the helper functions to Helpers.h?
 int myrandom(const int, const vector<int> *);
