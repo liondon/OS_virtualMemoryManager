@@ -81,7 +81,7 @@ void parse_command(int argc, char **argv,
 
 shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table,
                             deque<shared_ptr<Frame>> &freePool, const Pager *pager,
-                            shared_ptr<Process> &current_process, unsigned long long &totalCycles)
+                            unsigned long long &totalCycles)
 {
   shared_ptr<Frame> frame = nullptr;
   if (!freePool.empty())
@@ -103,7 +103,7 @@ shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &fra
   {
     frame = pager->select_victim_frame(MAX_FRAME, frame_table);
     cout << " UNMAP " << frame->proc->id << ":" << static_cast<int>(frame->vPageId) << endl;
-    current_process->pstats.unmaps++;
+    frame->proc->pstats.unmaps++;
     totalCycles += 400;
     pte_t &pte = frame->proc->page_table[frame->vPageId];
     // TODO: UNMAP victim_frame's original vPage: update PTE? What else than the valid bit?
@@ -118,13 +118,13 @@ shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &fra
       if (pte.file_mapped)
       {
         cout << " FOUT" << endl;
-        current_process->pstats.fouts++;
+        frame->proc->pstats.fouts++;
         totalCycles += 2500;
       }
       else
       {
         cout << " OUT" << endl;
-        current_process->pstats.outs++;
+        frame->proc->pstats.outs++;
         totalCycles += 3000;
         pte.pageout = 1;
       }

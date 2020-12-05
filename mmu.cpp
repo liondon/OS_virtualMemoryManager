@@ -61,7 +61,8 @@ int main(int argc, char **argv)
   {
     cout << instCount++ << ": ==> " << operation << " " << target << endl;
     // handle special case of "c" and "e" instruction
-    // "c <procid>":  context switch to process #<procid>
+    // "c <procid>":  context switch to process #<procid>,
+    // simply changes the current process and current page table pointer
     if (operation == "c")
     {
       current_process = procs[target];
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
       // If it is part of a VMA, then the page must be instantiated:
       // => a frame must be allocated, assigned to the PTE belonging to the vpage of this instruction
       shared_ptr<Frame> newframe = get_frame(MAX_FRAME, frame_table, freePool,
-                                             pager, current_process, totalCycles);
+                                             pager, totalCycles);
 
       // TODO: reset the PTE (M/R bits only?) What's the rule here?
       // NOTE: once the PAGEDOUT flag is set, it will never be reset as it indicates there is content on the swap device
