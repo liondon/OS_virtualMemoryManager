@@ -59,6 +59,7 @@ int main()
       continue;
     }
 
+    totalCycles += 1; // each attempt to access cost 1 cycle
     // now the real instructions for read and write
     // "r <vpage>": a load/read operation on <vpage> of current process.
     // "w <vpage>": a store/write operation on <vpage> of current process.
@@ -143,7 +144,6 @@ int main()
     // i.e. set the REFERENCED and MODIFIED bits based on the operation
     if (operation == "w")
     {
-      totalCycles += 1;
       if (pte.write_protect)
       {
         // If the instruction is a write operation and the PTE's write protect bit is set (inherited from the VMA it belongs to)
@@ -161,7 +161,6 @@ int main()
     }
     else if (operation == "r")
     {
-      totalCycles += 1;
       pte.referenced = 1;
     }
   }
