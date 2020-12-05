@@ -17,20 +17,26 @@ typedef struct pte_t
   /* What you can NOT do is run at the beginning of the program through the page_table and mark each PTE
   ** This is NOT how OSes do this due to hierarchical pagetable structures (not implemented in this lab though). 
   ** You can only set those bits on the first page fault to that virtual page. */
-  unsigned valid : 1;
-  unsigned referenced : 1;
-  unsigned modified : 1;
-  unsigned write_protect : 1;
-  unsigned pageout : 1;
-  unsigned frame : 7;
+  unsigned int valid : 1;
+  unsigned int referenced : 1;
+  unsigned int modified : 1;
+  unsigned int write_protect : 1;
+  unsigned int pageout : 1;
+  unsigned int frame : 7;
 
-  unsigned file_mapped : 1;
-  unsigned initialized : 1;
-  unsigned accessible : 1;
+  unsigned int file_mapped : 1;
+  unsigned int initialized : 1;
+  unsigned int accessible : 1;
+  // unsigned int padding : N;
+  // N would be 32 - <sum of all the other bits>
+  // In general, when you work with hardware in real world,
+  // you have to layout your datastructure exactly how the hardware specifies it.
+  // So padding is often the case.
 
-  pte_t()
-      : valid(0), referenced(0), modified(0), write_protect(0), pageout(0), frame(0),
-        file_mapped(0), initialized(0), accessible(0) {}
+  pte_t() : valid(0), referenced(0), modified(0), write_protect(0), pageout(0), frame(0),
+            file_mapped(0), initialized(0), accessible(0)
+  {
+  }
 
   pte_t(bool v, bool r, bool m, bool w, bool p, bool f, bool fm, bool i, bool a)
       : valid(v), referenced(r), modified(m), write_protect(w), pageout(p), frame(f),
