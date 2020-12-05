@@ -114,8 +114,6 @@ shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &fra
     frame->proc->pstats.unmaps++;
     totalCycles += 400;
     pte_t &pte = frame->proc->page_table[frame->vPageId];
-    // TODO: UNMAP victim_frame's original vPage: update PTE? What else than the valid bit?
-    pte.valid = 0;
 
     // If the page was dirty (modified) (tracked in the PTE)
     // it pages the page OUT to a swap device with the (1:26) tag so the OS can find it later
@@ -137,6 +135,11 @@ shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &fra
         pte.pageout = 1;
       }
     }
+    // TODO: reset the victim_PTE
+    // NOTE: once the PAGEDOUT flag is set, it will never be reset as it indicates there is content on the swap device
+    pte.valid = 0; // don't have to reset frame
+    pte.referenced = 0;
+    pte.modified = 0;
   }
   // cout << "DEBUG: selected frame = " << static_cast<int>(frame->id) << endl;
   return frame;

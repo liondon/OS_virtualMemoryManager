@@ -117,11 +117,6 @@ int main(int argc, char **argv)
       shared_ptr<Frame> newframe = get_frame(MAX_FRAME, frame_table, freePool,
                                              pager, totalCycles);
 
-      // TODO: reset the PTE (M/R bits only?) What's the rule here?
-      // NOTE: once the PAGEDOUT flag is set, it will never be reset as it indicates there is content on the swap device
-      pte.referenced = 0;
-      pte.modified = 0;
-
       // maps it: set the PTE's frame and valid bits
       pte.frame = newframe->id;
       pte.valid = 1;
