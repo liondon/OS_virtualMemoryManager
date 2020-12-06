@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <iostream>
+#include <bitset>
 using namespace std;
 
 #include "Process.h"
@@ -16,6 +17,7 @@ public:
   char id;
   shared_ptr<Process> proc;
   char vPageId;
+  bitset<32> age;
 
   Frame(char);
 
@@ -23,7 +25,7 @@ private:
 };
 
 Frame::Frame(char i)
-    : id(i), proc(nullptr), vPageId(0)
+    : id(i), proc(nullptr), vPageId(0), age(0)
 {
 }
 
