@@ -71,6 +71,9 @@ void set_config(int argc, char **argv,
   case 'c':
     pager = new CLCK();
     break;
+  case 'e':
+    pager = new ESC();
+    break;
   }
 
   for (int i = 0; i < 8; i++)

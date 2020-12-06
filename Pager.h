@@ -26,6 +26,93 @@ protected:
   // we can define data members that are for all derived class here.
 };
 
+///////////////////// E S C / N R U ///////////////////////////
+class ESC : public Pager
+{
+public:
+  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
+  ESC();
+
+private:
+  mutable int resetInstCount = 0;
+};
+
+ESC::ESC()
+    : Pager('e')
+{
+}
+
+shared_ptr<Frame> ESC::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
+{
+  hand = hand > MAX_FRAME ? 0 : hand;
+  int counter = 0;
+  bool resetRbits = (instCount - resetInstCount) >= 50;
+  array<int, 4> cls;
+  for (int &c : cls)
+  {
+    c = -1;
+  }
+
+  if (resetRbits)
+  { // update resetInstCount
+    resetInstCount = instCount;
+  }
+
+  int tail = hand;
+  do
+  {
+    counter++;
+    shared_ptr<Process> proc = frame_table[hand]->proc;
+    pte_t &pte = proc->page_table[frame_table[hand]->vPageId];
+    int idx = pte.referenced * 2 + pte.modified;
+
+    if (cls[idx] == -1)
+    {
+      cls[idx] = hand; // frame_i is the first frame we encountered for class_x
+      if (idx == 0 && !resetRbits)
+      {
+        // cout << "ASELECT : " << tail << " "
+        //      << resetRbits << " | "
+        //      << idx << " "
+        //      << cls[idx] << " "
+        //      << counter;
+        return frame_table[hand++];
+      }
+    }
+
+    if (resetRbits)
+    {
+      // reset R bit
+      pte.referenced = 0;
+    }
+
+    hand++;
+    hand = hand > MAX_FRAME ? 0 : hand;
+  } while (hand != tail);
+
+  int idx = 0;
+  for (; idx < 4; idx++)
+  {
+    hand = cls[idx];
+    if (hand != -1)
+    {
+      // cout << "ASELECT : " << (tail == MAX_FRAME ? 0 : tail + 1) << " "
+      //      << resetRbits << " | "
+      //      << idx << " "
+      //      << cls[idx] << " "
+      //      << counter;
+      return frame_table[hand++];
+    }
+  }
+
+  // cout << "ASELECT : " << (tail == MAX_FRAME ? 0 : tail + 1) << " "
+  //      << resetRbits << " | "
+  //      << idx << " "
+  //      << "nullptr "
+  //      << counter;
+  return nullptr;
+}
+/////////////////////////////////////////////////////////
 
 ///////////////////// C L O C K ///////////////////////////
 class CLCK : public Pager
