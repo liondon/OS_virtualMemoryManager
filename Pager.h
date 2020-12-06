@@ -22,6 +22,7 @@ public:
   */
 protected:
   char type;
+  mutable int hand = 0; // the "hand"
   // we can define data members that are for all derived class here.
 };
 
@@ -43,25 +44,24 @@ CLCK::CLCK()
 
 shared_ptr<Frame> CLCK::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
 {
-  static int i = 0; // the "hand"
   while (true)
   {
-    if (i > MAX_FRAME)
+    if (hand > MAX_FRAME)
     {
-      // cout << i << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
-      i = 0;
+      // cout << hand << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
+      hand = 0;
     }
-    shared_ptr<Process> proc = frame_table[i]->proc;
-    char vPageId = frame_table[i]->vPageId;
+    shared_ptr<Process> proc = frame_table[hand]->proc;
+    char vPageId = frame_table[hand]->vPageId;
     pte_t &pte = proc->page_table[vPageId];
     if (pte.referenced)
     {
       pte.referenced = 0;
-      i++;
+      hand++;
     }
     else
     {
-      return frame_table[i++];
+      return frame_table[hand++];
     }
   }
 }
@@ -112,13 +112,12 @@ FIFO::FIFO()
 
 shared_ptr<Frame> FIFO::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
 {
-  static int i = 0; // the "hand"
-  if (i > MAX_FRAME)
+  if (hand > MAX_FRAME)
   {
-    // cout << i << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
-    i = 0;
+    // cout << hand << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
+    hand = 0;
   }
-  return frame_table[i++];
+  return frame_table[hand++];
 }
 /////////////////////////////////////////////////////////
 
