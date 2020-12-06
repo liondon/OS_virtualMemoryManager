@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <bitset>
 using namespace std;
 
 #include "Frame.h"
@@ -25,6 +26,55 @@ protected:
   mutable int hand = 0; // the "hand"
   // we can define data members that are for all derived class here.
 };
+
+///////////////////// A G I N G ///////////////////////////
+class AGN : public Pager
+{
+public:
+  shared_ptr<Frame> select_victim_frame() const override;
+  AGN();
+
+private:
+};
+
+AGN::AGN()
+    : Pager('A')
+{
+}
+
+shared_ptr<Frame> AGN::select_victim_frame() const
+{
+  hand = hand > MAX_FRAME ? 0 : hand;
+  int tail = hand;
+  shared_ptr<Frame> victim_frame = frame_table[hand];
+  do
+  {
+    shared_ptr<Frame> curr_frame = frame_table[hand];
+    bitset<32> &age = curr_frame->age;
+    shared_ptr<Process> proc = curr_frame->proc;
+    pte_t &pte = proc->page_table[curr_frame->vPageId];
+
+    // Aging is implemented on every page replacement request
+    age >>= 1;
+    if (pte.referenced)
+    {
+      age |= 0x80000000;
+      pte.referenced = 0;
+    }
+
+    if (victim_frame->age.to_ulong() > age.to_ulong())
+    {
+      victim_frame = curr_frame;
+    }
+
+    hand++;
+    hand = hand > MAX_FRAME ? 0 : hand;
+  } while (hand != tail);
+
+  hand = victim_frame->id + 1;
+  return victim_frame;
+}
+/////////////////////////////////////////////////////////
 
 ///////////////////// E S C / N R U ///////////////////////////
 class ESC : public Pager

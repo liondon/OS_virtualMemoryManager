@@ -122,7 +122,8 @@ int main(int argc, char **argv)
       // maps it: set the PTE's frame and valid bits
       pte.frame = newframe->id;
       pte.valid = 1;
-
+      // Note the age has to be reset to 0 on each MAP operation.
+      newframe->age = 0;
       // update the frame table: The frame table can only be accessed as part of the "simulated page fault handler"
       newframe->proc = current_process;
       newframe->vPageId = target;
