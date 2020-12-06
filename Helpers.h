@@ -87,7 +87,7 @@ void set_config(int argc, char **argv,
   return;
 }
 
-shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table,
+shared_ptr<Frame> get_frame(vector<shared_ptr<Frame>> &frame_table,
                             deque<shared_ptr<Frame>> &freePool, const Pager *pager,
                             unsigned long long &totalCycles)
 {
@@ -109,7 +109,7 @@ shared_ptr<Frame> get_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &fra
 
   if (frame == nullptr)
   {
-    frame = pager->select_victim_frame(MAX_FRAME, frame_table);
+    frame = pager->select_victim_frame(frame_table);
     cout << " UNMAP " << frame->proc->id << ":" << static_cast<int>(frame->vPageId) << endl;
     frame->proc->pstats.unmaps++;
     totalCycles += 400;

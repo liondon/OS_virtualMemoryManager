@@ -10,7 +10,7 @@ using namespace std;
 class Pager
 {
 public:
-  virtual shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const = 0;
+  virtual shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const = 0;
   char get_type() { return type; };
   Pager(char c) : type(c){};
 
@@ -25,11 +25,12 @@ protected:
   // we can define data members that are for all derived class here.
 };
 
+
 ///////////////////// C L O C K ///////////////////////////
 class CLCK : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
   CLCK();
 
 private:
@@ -40,7 +41,7 @@ CLCK::CLCK()
 {
 }
 
-shared_ptr<Frame> CLCK::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> CLCK::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
 {
   static int i = 0; // the "hand"
   while (true)
@@ -68,13 +69,13 @@ shared_ptr<Frame> CLCK::select_victim_frame(const char MAX_FRAME, vector<shared_
 
 ///////////////////// R A N D O M ///////////////////////////
 // TODO: how to put the helper functions to Helpers.h?
-int myrandom(const int, const vector<int> *);
+int myrandom(const vector<int> *);
 vector<int> *createRandArray(const string);
 
 class RAND : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
   RAND(const string);
 
 private:
@@ -87,15 +88,9 @@ RAND::RAND(const string randPath)
   randArray = createRandArray(randPath);
 }
 
-shared_ptr<Frame> RAND::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> RAND::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
 {
-  // static int i = 0; // the "hand"
-  // if (i > MAX_FRAME)
-  // {
-  //   // cout << i << " > MAX_FRAME=" << static_cast<int>(MAX_FRAME) << endl;
-  //   i = 0;
-  // }
-  int r = myrandom(MAX_FRAME, randArray);
+  int r = myrandom(randArray);
   return frame_table[r];
 }
 /////////////////////////////////////////////////////////
@@ -104,7 +99,7 @@ shared_ptr<Frame> RAND::select_victim_frame(const char MAX_FRAME, vector<shared_
 class FIFO : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(const char, vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
   FIFO();
 
 private:
@@ -115,7 +110,7 @@ FIFO::FIFO()
 {
 }
 
-shared_ptr<Frame> FIFO::select_victim_frame(const char MAX_FRAME, vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> FIFO::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
 {
   static int i = 0; // the "hand"
   if (i > MAX_FRAME)
@@ -127,7 +122,7 @@ shared_ptr<Frame> FIFO::select_victim_frame(const char MAX_FRAME, vector<shared_
 }
 /////////////////////////////////////////////////////////
 
-int myrandom(const int MAX_FRAME, const vector<int> *randArray)
+int myrandom(const vector<int> *randArray)
 {
   static int ofs = 0;
   if (ofs >= randArray->size())

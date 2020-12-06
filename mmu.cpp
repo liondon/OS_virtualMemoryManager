@@ -7,6 +7,10 @@
 #include <string>
 using namespace std;
 
+// Global variables... simplify functions
+int instCount = 0;  // for statistics
+char MAX_FRAME = 0; // for simulation control
+
 #include "Frame.h"
 #include "Process.h"
 #include "Helpers.h"
@@ -16,7 +20,6 @@ int main(int argc, char **argv)
 {
   // for configs
   char *inputPath = nullptr, *randPath = nullptr;
-  char MAX_FRAME = 0;
   Pager *pager = nullptr;
   unordered_map<char, bool> ops = {{'O', 0}, {'P', 0}, {'F', 0}, {'S', 0}, {'x', 0}, {'y', 0}, {'f', 0}, {'a', 0}};
 
@@ -28,7 +31,7 @@ int main(int argc, char **argv)
   deque<shared_ptr<Frame>> freePool;
 
   // for statistics
-  int instCount = 0, ctxSwitches = 0, processExits = 0;
+  int ctxSwitches = 0, processExits = 0;
   unsigned long long totalCycles = 0;
 
   set_config(argc, argv, MAX_FRAME, pager, ops, inputPath, randPath);
@@ -114,7 +117,7 @@ int main(int argc, char **argv)
 
       // If it is part of a VMA, then the page must be instantiated:
       // => a frame must be allocated, assigned to the PTE belonging to the vpage of this instruction
-      shared_ptr<Frame> newframe = get_frame(MAX_FRAME, frame_table, freePool,
+      shared_ptr<Frame> newframe = get_frame(frame_table, freePool,
                                              pager, totalCycles);
 
       // maps it: set the PTE's frame and valid bits
