@@ -7,6 +7,9 @@
 #include <string>
 using namespace std;
 
+#define NUM_OF_VPAGES 64
+#define TAU 49
+
 // TODO: How to reorganize these?
 #include "Process.h"
 int instCount = 0;  // for statistics
@@ -124,6 +127,8 @@ int main(int argc, char **argv)
       pte.valid = 1;
       // Note the age has to be reset to 0 on each MAP operation.
       newframe->age = 0;
+      // Note when you map a frame, you must set its time of last use to the current time (instruction count).
+      newframe->lastRefInstCount = instCount;
       // update the frame table: The frame table can only be accessed as part of the "simulated page fault handler"
       newframe->proc = current_process;
       newframe->vPageId = target;

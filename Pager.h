@@ -27,6 +27,60 @@ protected:
   // we can define data members that are for all derived class here.
 };
 
+///////////////////// W O R K I N G - S E T ///////////////////////////
+class WS : public Pager
+{
+public:
+  shared_ptr<Frame> select_victim_frame() const override;
+  WS();
+
+private:
+};
+
+WS::WS()
+    : Pager('W')
+{
+}
+
+shared_ptr<Frame> WS::select_victim_frame() const
+{
+  hand = hand > MAX_FRAME ? 0 : hand;
+  shared_ptr<Frame> oldestFrame = frame_table[hand];
+  int tail = hand;
+  do
+  {
+    shared_ptr<Frame> frame = frame_table[hand];
+    int age = instCount - frame->lastRefInstCount;
+    shared_ptr<Process> proc = frame->proc;
+    pte_t &pte = proc->page_table[frame->vPageId];
+
+    if (pte.referenced)
+    {
+      frame->lastRefInstCount = instCount;
+      pte.referenced = 0;
+    }
+    else
+    {
+      if (age > TAU && !pte.modified)
+      {
+        return frame;
+      }
+    }
+
+    if (frame->lastRefInstCount < oldestFrame->lastRefInstCount)
+    {
+      oldestFrame = frame;
+    }
+
+    hand++;
+    hand = hand > MAX_FRAME ? 0 : hand;
+  } while (hand != tail);
+
+  hand = oldestFrame->id + 1;
+  return oldestFrame;
+}
+/////////////////////////////////////////////////////////
+
 ///////////////////// A G I N G ///////////////////////////
 class AGN : public Pager
 {

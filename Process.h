@@ -7,8 +7,6 @@
 #include <array>
 using namespace std;
 
-#define NUM_OF_VPAGES 64
-
 typedef struct pte_t
 {
   // can only be total of 32-bit size
