@@ -7,14 +7,14 @@
 #include <string>
 using namespace std;
 
-// Global variables... simplify functions
+// TODO: How to reorganize these?
+#include "Process.h"
 int instCount = 0;  // for statistics
 char MAX_FRAME = 0; // for simulation control
-
 #include "Frame.h"
-#include "Process.h"
-#include "Helpers.h"
+vector<shared_ptr<Frame>> frame_table;
 #include "Pager.h"
+#include "Helpers.h"
 
 int main(int argc, char **argv)
 {
@@ -27,7 +27,6 @@ int main(int argc, char **argv)
   ifstream inputfile;
   vector<shared_ptr<Process>> procs;
   shared_ptr<Process> current_process = nullptr;
-  vector<shared_ptr<Frame>> frame_table;
   deque<shared_ptr<Frame>> freePool;
 
   // for statistics

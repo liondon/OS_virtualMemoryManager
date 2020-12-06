@@ -112,7 +112,7 @@ shared_ptr<Frame> get_frame(vector<shared_ptr<Frame>> &frame_table,
 
   if (frame == nullptr)
   {
-    frame = pager->select_victim_frame(frame_table);
+    frame = pager->select_victim_frame();
     cout << " UNMAP " << frame->proc->id << ":" << static_cast<int>(frame->vPageId) << endl;
     frame->proc->pstats.unmaps++;
     totalCycles += 400;

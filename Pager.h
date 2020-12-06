@@ -10,7 +10,7 @@ using namespace std;
 class Pager
 {
 public:
-  virtual shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const = 0;
+  virtual shared_ptr<Frame> select_victim_frame() const = 0;
   char get_type() { return type; };
   Pager(char c) : type(c){};
 
@@ -30,19 +30,19 @@ protected:
 class ESC : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame() const override;
   ESC();
 
 private:
-  mutable int resetInstCount = 0;
+  mutable int resetInstCount;
 };
 
 ESC::ESC()
-    : Pager('e')
+    : Pager('e'), resetInstCount(0)
 {
 }
 
-shared_ptr<Frame> ESC::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> ESC::select_victim_frame() const
 {
   hand = hand > MAX_FRAME ? 0 : hand;
   int counter = 0;
@@ -118,7 +118,7 @@ shared_ptr<Frame> ESC::select_victim_frame(vector<shared_ptr<Frame>> &frame_tabl
 class CLCK : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame() const override;
   CLCK();
 
 private:
@@ -129,7 +129,7 @@ CLCK::CLCK()
 {
 }
 
-shared_ptr<Frame> CLCK::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> CLCK::select_victim_frame() const
 {
   while (true)
   {
@@ -162,7 +162,7 @@ vector<int> *createRandArray(const string);
 class RAND : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame() const override;
   RAND(const string);
 
 private:
@@ -170,12 +170,11 @@ private:
 };
 
 RAND::RAND(const string randPath)
-    : Pager('R')
+    : Pager('R'), randArray(createRandArray(randPath))
 {
-  randArray = createRandArray(randPath);
 }
 
-shared_ptr<Frame> RAND::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> RAND::select_victim_frame() const
 {
   int r = myrandom(randArray);
   return frame_table[r];
@@ -186,7 +185,7 @@ shared_ptr<Frame> RAND::select_victim_frame(vector<shared_ptr<Frame>> &frame_tab
 class FIFO : public Pager
 {
 public:
-  shared_ptr<Frame> select_victim_frame(vector<shared_ptr<Frame>> &) const override;
+  shared_ptr<Frame> select_victim_frame() const override;
   FIFO();
 
 private:
@@ -197,7 +196,7 @@ FIFO::FIFO()
 {
 }
 
-shared_ptr<Frame> FIFO::select_victim_frame(vector<shared_ptr<Frame>> &frame_table) const
+shared_ptr<Frame> FIFO::select_victim_frame() const
 {
   if (hand > MAX_FRAME)
   {
