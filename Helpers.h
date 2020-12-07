@@ -103,23 +103,32 @@ shared_ptr<Frame> get_frame(vector<shared_ptr<Frame>> &frame_table,
   shared_ptr<Frame> frame = nullptr;
   if (!freePool.empty())
   {
-    frame = freePool.front();
+    // cout << "DEBUG: freePool before select: ";
     // for (auto frame : freePool)
     // {
-    //   cout << "DEBUG: freePool " << static_cast<int>(frame->id) << endl;
+    //   cout << static_cast<int>(frame->id) << "->";
     // }
+    // cout << endl;
+
+    frame = freePool.front();
+    // cout << "Selected frame=" << static_cast<int>(frame->id) << endl;
 
     freePool.pop_front();
+    // cout << "DEBUG: freePool after pop_front(): ";
     // for (auto frame : freePool)
     // {
-    //   cout << "DEBUG: freePool " << static_cast<int>(frame->id) << endl;
+    //   cout << static_cast<int>(frame->id) << "->";
     // }
+    // cout << endl;
   }
 
   if (frame == nullptr)
   {
     frame = pager->select_victim_frame();
-    cout << " UNMAP " << frame->proc->id << ":" << static_cast<int>(frame->vPageId) << endl;
+    if (ops['O'])
+    {
+      cout << " UNMAP " << frame->proc->id << ":" << static_cast<int>(frame->vPageId) << endl;
+    }
     frame->proc->pstats.unmaps++;
     totalCycles += 400;
     pte_t &pte = frame->proc->page_table[frame->vPageId];
@@ -132,13 +141,19 @@ shared_ptr<Frame> get_frame(vector<shared_ptr<Frame>> &frame_table,
     {
       if (pte.file_mapped)
       {
-        cout << " FOUT" << endl;
+        if (ops['O'])
+        {
+          cout << " FOUT" << endl;
+        }
         frame->proc->pstats.fouts++;
         totalCycles += 2500;
       }
       else
       {
-        cout << " OUT" << endl;
+        if (ops['O'])
+        {
+          cout << " OUT" << endl;
+        }
         frame->proc->pstats.outs++;
         totalCycles += 3000;
         pte.pageout = 1;

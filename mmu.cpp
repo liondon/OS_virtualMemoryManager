@@ -7,16 +7,17 @@
 #include <string>
 using namespace std;
 
-#define NUM_OF_VPAGES 64
+#define NUM_OF_VPAGES 64 // using char for vpage, so can only support up to 128 vpages.
 #define TAU 49
 
 // TODO: How to reorganize these?
 #include "Process.h"
 int instCount = 0;  // for statistics
-char MAX_FRAME = 0; // for simulation control
+char MAX_FRAME = 0; // for simulation control, can be 0~127 => support up to 128 frames.
 #include "Frame.h"
 vector<shared_ptr<Frame>> frame_table;
 #include "Pager.h"
+unordered_map<char, bool> ops = {{'O', 0}, {'P', 0}, {'F', 0}, {'S', 0}, {'x', 0}, {'y', 0}, {'f', 0}, {'a', 0}};
 #include "Helpers.h"
 
 int main(int argc, char **argv)
@@ -24,7 +25,6 @@ int main(int argc, char **argv)
   // for configs
   char *inputPath = nullptr, *randPath = nullptr;
   Pager *pager = nullptr;
-  unordered_map<char, bool> ops = {{'O', 0}, {'P', 0}, {'F', 0}, {'S', 0}, {'x', 0}, {'y', 0}, {'f', 0}, {'a', 0}};
 
   // for simulation control
   ifstream inputfile;
@@ -64,7 +64,11 @@ int main(int argc, char **argv)
   int target;
   while (get_next_instruction(inputfile, operation, target))
   {
-    cout << instCount++ << ": ==> " << operation << " " << target << endl;
+    if (ops['O'])
+    {
+      cout << instCount++ << ": ==> " << operation << " " << target << endl;
+    }
+
     // handle special case of "c" and "e" instruction
     // "c <procid>":  context switch to process #<procid>,
     // simply changes the current process and current page table pointer
@@ -78,8 +82,45 @@ int main(int argc, char **argv)
     else if (operation == "e")
     {
       // TODO: "e <procid>": current process (#<procid>) exits
+      /*
+      // traverse the active process’s page table
+      // for each valid entry, UNMAP the page and FOUT modified filemapped pages. 
+      // Note that dirty non-fmapped (anonymous) pages are not written back (OUT) as the process exits. 
+      // The used frame has to be returned to the free pool
+      */
+      if (ops['O'])
+      {
+        cout << "EXIT current process " << target << endl;
+      }
       processExits++;
       totalCycles += 175;
+      for (int i = 0; i < NUM_OF_VPAGES; i++)
+      {
+        pte_t &pte = current_process->page_table[i];
+        if (pte.valid)
+        {
+          if (ops['O'])
+          {
+            cout << " UNMAP " << current_process->id << ":" << i << endl;
+          }
+          current_process->pstats.unmaps++;
+          totalCycles += 400;
+          if (pte.modified && pte.file_mapped)
+          {
+            if (ops['O'])
+            {
+              cout << " FOUT" << endl;
+            }
+            current_process->pstats.fouts++;
+            totalCycles += 2500;
+          }
+          shared_ptr<Frame> free_frame = frame_table[pte.frame];
+          freePool.emplace_back(free_frame);
+        }
+        // Reset the PTE to 0, cuz there is no more state or swap area associated with the process
+        pte = {};
+        // valid, referenced, modified, write_protect, pageout, frame, file_mapped, initialized, accessible
+      }
       continue;
     }
 
@@ -111,7 +152,10 @@ int main(int argc, char **argv)
       if (!pte.accessible)
       { // It is not a part of a VMA:
         // a SEGV output line must be created AND move on to the next instruction
-        cout << " SEGV" << endl;
+        if (ops['O'])
+        {
+          cout << " SEGV" << endl;
+        }
         current_process->pstats.segv++;
         totalCycles += 240;
         continue;
@@ -125,10 +169,14 @@ int main(int argc, char **argv)
       // maps it: set the PTE's frame and valid bits
       pte.frame = newframe->id;
       pte.valid = 1;
+
       // Note the age has to be reset to 0 on each MAP operation.
       newframe->age = 0;
-      // Note when you map a frame, you must set its time of last use to the current time (instruction count).
-      newframe->lastRefInstCount = instCount;
+
+      // // TODO: Shouldn't we also set this when r/w without page fault?
+      // // Note when you map a frame, you must set its time of last use to the current time (instruction count).
+      // newframe->lastRefInstCount = instCount;
+
       // update the frame table: The frame table can only be accessed as part of the "simulated page fault handler"
       newframe->proc = current_process;
       newframe->vPageId = target;
@@ -137,14 +185,20 @@ int main(int argc, char **argv)
       /* If paged out: the page must be brought back from the swap space ("IN") */
       if (pte.pageout)
       {
-        cout << " IN" << endl;
+        if (ops['O'])
+        {
+          cout << " IN" << endl;
+        }
         current_process->pstats.ins++;
         totalCycles += 3000;
       }
       /* If it is a memory mapped file: "FIN" */
       if (pte.file_mapped)
       {
-        cout << " FIN" << endl;
+        if (ops['O'])
+        {
+          cout << " FIN" << endl;
+        }
         current_process->pstats.fins++;
         totalCycles += 2500;
       }
@@ -152,15 +206,23 @@ int main(int argc, char **argv)
       ** you issue the "ZERO" output.*/
       if (!pte.pageout && !pte.file_mapped)
       {
-        cout << " ZERO" << endl;
+        if (ops['O'])
+        {
+          cout << " ZERO" << endl;
+        }
         current_process->pstats.zeros++;
         totalCycles += 150;
       }
-
-      cout << " MAP " << static_cast<int>(newframe->id) << endl;
+      if (ops['O'])
+      {
+        cout << " MAP " << static_cast<int>(newframe->id) << endl;
+      }
       current_process->pstats.maps++;
       totalCycles += 400;
     }
+    // TODO: Shouldn't we also set this when r/w without page fault?
+    // Note when you map a frame, you must set its time of last use to the current time (instruction count).
+    frame_table[pte.frame]->lastRefInstCount = instCount;
 
     // Update the  PTE's R/M bits to simulate instruction execution by hardware,
     // i.e. set the REFERENCED and MODIFIED bits based on the operation
@@ -171,7 +233,10 @@ int main(int argc, char **argv)
       {
         // If the instruction is a write operation and the PTE's write protect bit is set (inherited from the VMA it belongs to)
         // then output "SEGPROT". The page is considered referenced but not modified in this case.
-        cout << " SEGPROT" << endl;
+        if (ops['O'])
+        {
+          cout << " SEGPROT" << endl;
+        }
         current_process->pstats.segprot++;
         totalCycles += 300;
       }
@@ -244,7 +309,7 @@ int main(int argc, char **argv)
     // Per process output:
     for (auto proc : procs)
     {
-      pstats *pstats = &(proc->pstats);
+      pstats_t *pstats = &(proc->pstats);
       printf("PROC[%d]: U=%lu M=%lu I=%lu O=%lu FI=%lu FO=%lu Z=%lu SV=%lu SP=%lu\n",
              proc->id,
              pstats->unmaps, pstats->maps, pstats->ins, pstats->outs, pstats->fins, pstats->fouts,

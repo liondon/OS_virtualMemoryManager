@@ -54,7 +54,7 @@ typedef struct pte_t
         file_mapped(fm), initialized(i), accessible(a) {}
 } pte_t;
 
-typedef struct pstats
+typedef struct pstats_t
 {
   // can only be total of 32-bit size
   // PTE is comprised of the PRESENT/VALID, REFERENCED, MODIFIED, WRITE_PROTECT, PAGEDOUT and the number of physical frame
@@ -64,10 +64,10 @@ typedef struct pstats
   ** You can only set those bits on the first page fault to that virtual page. */
   int unmaps, maps, ins, outs, fins, fouts, zeros, segv, segprot;
 
-  pstats()
+  pstats_t()
       : unmaps(0), maps(0), ins(0), outs(0), fins(0), fouts(0),
         zeros(0), segv(0), segprot(0) {}
-} pstats;
+} pstats_t;
 
 class Process
 {
@@ -82,7 +82,7 @@ public:
   int id;
   unique_ptr<vector<unique_ptr<array<char, 4>>>> VMAs;
   vector<pte_t> page_table;
-  pstats pstats;
+  pstats_t pstats;
 
   Process(unique_ptr<vector<unique_ptr<array<char, 4>>>> &);
 };
