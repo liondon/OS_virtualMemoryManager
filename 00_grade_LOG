@@ -1,0 +1,52 @@
+diff -b -q --speed-large-files ./refout//out7_58_w ./studout/lih328//out7_58_w failed
+   DIR1-SUM ==> TOTALCOST 213 13 0 101673
+   DIR2-SUM ==> TOTALCOST 213 13 0 85573
+diff -b -q --speed-large-files ./refout//out8_58_w ./studout/lih328//out8_58_w failed
+   DIR1-SUM ==> TOTALCOST 210 10 0 171710
+   DIR2-SUM ==> TOTALCOST 210 10 0 153110
+diff -b -q --speed-large-files ./refout//out9_58_w ./studout/lih328//out9_58_w failed
+   DIR1-SUM ==> TOTALCOST 1051 51 0 2120921
+   DIR2-SUM ==> TOTALCOST 1051 51 0 1888621
+diff -b -q --speed-large-files ./refout//out9_121_w ./studout/lih328//out9_121_w failed
+   DIR1-SUM ==> TOTALCOST 1051 51 0 910021
+   DIR2-SUM ==> TOTALCOST 1051 51 0 546821
+diff -b -q --speed-large-files ./refout//out10_58_w ./studout/lih328//out10_58_w failed
+   DIR1-SUM ==> TOTALCOST 5243 243 0 12229643
+   DIR2-SUM ==> TOTALCOST 5243 243 0 11676343
+diff -b -q --speed-large-files ./refout//out10_121_w ./studout/lih328//out10_121_w failed
+   DIR1-SUM ==> TOTALCOST 5243 243 0 7752993
+   DIR2-SUM ==> TOTALCOST 5243 243 0 6139543
+diff -b -q --speed-large-files ./refout//out11_58_w ./studout/lih328//out11_58_w failed
+   DIR1-SUM ==> TOTALCOST 5245 243 2 10282923
+   DIR2-SUM ==> TOTALCOST 5245 243 2 9640723
+diff -b -q --speed-large-files ./refout//out11_121_w ./studout/lih328//out11_121_w failed
+   DIR1-SUM ==> TOTALCOST 5245 243 2 4813373
+   DIR2-SUM ==> TOTALCOST 5245 243 2 3209473
+diff -b -q --speed-large-files ./refout//out12_58_w ./studout/lih328//out12_58_w failed
+   DIR1-SUM ==> TOTALCOST 10490 490 0 32097830
+   DIR2-SUM ==> TOTALCOST 10490 490 0 30440380
+diff -b -q --speed-large-files ./refout//out12_121_w ./studout/lih328//out12_121_w failed
+   DIR1-SUM ==> TOTALCOST 10490 490 0 20600830
+   DIR2-SUM ==> TOTALCOST 10490 490 0 17547930
+diff -b -q --speed-large-files ./refout//out13_58_w ./studout/lih328//out13_58_w failed
+   DIR1-SUM ==> TOTALCOST 52428 2428 0 215537358
+   DIR2-SUM ==> TOTALCOST 52428 2428 0 215250258
+diff -b -q --speed-large-files ./refout//out13_121_w ./studout/lih328//out13_121_w failed
+   DIR1-SUM ==> TOTALCOST 52428 2428 0 213786058
+   DIR2-SUM ==> TOTALCOST 52428 2428 0 178103058
+diff -b -q --speed-large-files ./refout//out14_58_w ./studout/lih328//out14_58_w failed
+   DIR1-SUM ==> TOTALCOST 52952 2444 3 195360214
+   DIR2-SUM ==> TOTALCOST 52952 2444 3 190250214
+diff -b -q --speed-large-files ./refout//out14_121_w ./studout/lih328//out14_121_w failed
+   DIR1-SUM ==> TOTALCOST 52952 2444 3 114526164
+   DIR2-SUM ==> TOTALCOST 52952 2444 3 102177214
+./studout/lih328//out15_8_w does not exist
+./studout/lih328//out15_21_w does not exist
+diff -b -q --speed-large-files ./refout//out15_58_a ./studout/lih328//out15_58_a failed
+   DIR1-SUM ==> TOTALCOST 1154021 53721 0 4240928471
+   DIR2-SUM ==> 
+./studout/lih328//out15_58_w does not exist
+diff -b -q --speed-large-files ./refout//out15_121_a ./studout/lih328//out15_121_a failed
+   DIR1-SUM ==> TOTALCOST 1154021 53721 0 3255639521
+   DIR2-SUM ==> 
+./studout/lih328//out15_121_w does not exist
